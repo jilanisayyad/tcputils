@@ -216,9 +216,11 @@ sudo tcputils -p 8443 -m 20 app.example.com
 
 ## Release (GoReleaser)
 
+Maintained by **Jilani Sayyad** — <https://github.com/jilanisayyad>
+
 This repo includes:
 
-- `.goreleaser.yml` for multi-platform builds (`linux`, `darwin`, `windows`, `freebsd` on `amd64` and `arm64`)
+- `.goreleaser.yaml` for multi-platform builds across `linux`, `darwin`, `windows`, `freebsd`, `openbsd`, and `netbsd` on `amd64`, `arm64`, `386`, and `arm` (v6/v7)
 - `.github/workflows/release.yml` to publish a GitHub Release when a `v*` tag is pushed
 
 ### Local dry-run
@@ -234,4 +236,20 @@ git tag v0.1.0
 git push origin v0.1.0
 ```
 
-GitHub Actions will build archives, generate checksums, and create the release artifacts automatically.
+GitHub Actions will build archives for all platforms, generate `checksums.txt`, and create the release artifacts automatically.
+
+### Install from a release
+
+```bash
+# Linux amd64
+curl -sSfL https://github.com/jilanisayyad/tcputils/releases/latest/download/tcputils_<version>_linux_amd64.tar.gz | tar -xz
+sudo mv tcputils /usr/local/bin/
+
+# macOS arm64 (Apple Silicon)
+curl -sSfL https://github.com/jilanisayyad/tcputils/releases/latest/download/tcputils_<version>_darwin_arm64.tar.gz | tar -xz
+sudo mv tcputils /usr/local/bin/
+
+# macOS amd64 (Intel)
+curl -sSfL https://github.com/jilanisayyad/tcputils/releases/latest/download/tcputils_<version>_darwin_amd64.tar.gz | tar -xz
+sudo mv tcputils /usr/local/bin/
+```

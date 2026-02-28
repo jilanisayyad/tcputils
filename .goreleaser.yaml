@@ -1,0 +1,116 @@
+# .goreleaser.yaml — tcputils release configuration
+# Maintainer: Jilani Sayyad <https://github.com/jilanisayyad>
+#
+# Quick start:
+#   Dry run (no publish):   goreleaser release --snapshot --clean
+#   Full release:           git tag v0.1.0 && git push origin v0.1.0
+#
+# GoReleaser docs: https://goreleaser.com
+
+version: 2
+
+before:
+  hooks:
+  - go mod tidy
+
+builds:
+- id: tcputils
+  main: ./cmd/tcputils
+  binary: tcputils
+  env:
+  - CGO_ENABLED=0
+  goos:
+  - linux
+  - darwin
+  - windows
+  - freebsd
+  - openbsd
+  - netbsd
+  goarch:
+  - amd64
+  - arm64
+  - "386"
+  - arm
+  goarm:
+  - "6"
+  - "7"
+  ignore:
+  # darwin only ships amd64 + arm64 (no 32-bit)
+  - goos: darwin
+    goarch: "386"
+  - goos: darwin
+    goarch: arm
+  # windows arm support is limited; skip 32-bit arm
+  - goos: windows
+    goarch: arm
+  ldflags:
+  - -s -w
+  - -X main.version={{.Version}}
+  - -X main.commit={{.Commit}}
+  - -X main.date={{.Date}}
+
+archives:
+- id: tcputils
+  formats:
+  - tar.gz
+  format_overrides:
+  - goos: windows
+    formats:
+    - zip
+  name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+  files:
+  - README.md
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - "^docs:"
+    - "^test:"
+    - "^chore:"
+    - Merge pull request
+    - Merge branch
+
+release:
+  github:
+    owner: jilanisayyad
+    name: tcputils
+  draft: false
+  prerelease: auto
+  header: |
+    ## tcputils {{ .Tag }}
+
+    Maintained by [Jilani Sayyad](https://github.com/jilanisayyad).
+
+    ### Getting started
+
+    **Install via script (Linux/macOS)**
+    ```sh
+    curl -sSfL https://github.com/jilanisayyad/tcputils/releases/download/{{ .Tag }}/tcputils_{{ .RawVersion }}_linux_amd64.tar.gz | tar -xz
+    sudo mv tcputils /usr/local/bin/
+    ```
+
+    **Basic TCP traceroute**
+    ```sh
+    sudo tcputils -p 443 -m 20 github.com
+    ```
+
+    **Run diagnostics only (no root required)**
+    ```sh
+    tcputils --diag-only -p 443 github.com
+    ```
+
+    **TCP ping latency**
+    ```sh
+    tcputils --tcpping --tcpping-count 10 -p 443 github.com
+    ```
+
+    **JSON output for automation**
+    ```sh
+    sudo tcputils --diag --json -p 443 -m 20 github.com
+    ```
+
+    See the [README](https://github.com/jilanisayyad/tcputils#readme) for the full flag reference.
